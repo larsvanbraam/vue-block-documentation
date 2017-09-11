@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Block documentation</title>
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.4.1/knockout-min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/fetch/2.0.2/fetch.min.js"></script>
+
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/default.min.css">
+
+	<style>
+		body {
+			padding-top: 10px;
+		}
+
+		td .table {
+			margin-left: 50px;
+			width: calc(100% - 50px);
+			margin-bottom: 0;
+		}
+
+		.capitalize {
+			text-transform: capitalize;
+		}
+	</style>
+</head>
+<body>
+
+<div class="container-fluid viewmodel">
+	<div class="col-md-3 hidden-xs hidden-sm">
+		<h2>Documentation</h2>
+		<!-- ko foreach: sections -->
+		<!-- ko if: $data.data.length -->
+		<div class="list-group capitalize">
+					<span class="list-group-item">
+						<span class="badge" data-bind="text: data.length"></span>
+						<span class="list-group-item-heading">
+						    <h4 class="list-group-item-heading" data-bind="html: id"></h4>
+						</span>
+					</span>
+			<!-- ko foreach: data -->
+			<a href="#" class="list-group-item" data-bind="attr: {href: '#' + $data.name}, html: $data.name"></a>
+			<!-- /ko -->
+		</div>
+		<!-- /ko -->
+		<!-- /ko -->
+	</div>
+
+	<div class="col-md-9">
+		<div class="starter-template" data-bind="foreach: sections">
+			<!-- ko if: data.length -->
+			<h2 class="capitalize" data-bind="html: id, attr: {id: id}"></h2>
+			<div class="blocks" data-bind="foreach: data">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title" data-bind="html: name, attr: {id: name}"></h3>
+					</div>
+					<div class="panel-body table-responsive">
+						<!-- ko template: {name: 'table', data: $data.properties} --><!--/ko -->
+					</div>
+					<!-- ko if: $data.example -->
+					<div class="panel-body panel-responsive">
+						<h5>Example JSON</h5>
+						<pre><code class="json-example" data-bind="html: example"></code></pre>
+					</div>
+					<!-- /ko -->
+				</div>
+			</div>
+			<!-- /ko -->
+		</div>
+	</div>
+
+
+	<script type="text/html" id="table">
+		<table class="table">
+			<thead>
+			<tr data-bind="foreach: Object.keys($data[0] || {})">
+				<!-- ko if: skippedProperties.indexOf($data) == -1 -->
+				<th data-bind="html: $data"></th>
+				<!-- /ko -->
+			</tr>
+			</thead>
+			<tbody data-bind="foreach: $data">
+
+			<tr data-bind="foreach: Object.keys($data)">
+
+				<!-- ko if: skippedProperties.indexOf($data) == -1 -->
+
+				<td>
+					<!-- ko if: $data === 'value' -->
+					<code data-bind="html: $parent[$data]"></code>
+					<!-- /ko -->
+
+					<!-- ko if: $data === 'defaultValue' -->
+					<var data-bind="html: $parent[$data]"></var>
+					<!-- /ko -->
+
+					<!-- ko if: $data === 'type' -->
+
+					<!-- ko if: types.indexOf($parent[$data]) > -1 -->
+					<code data-bind="text: $parent[$data]"></code>
+					<!-- /ko -->
+
+					<!-- ko if: types.indexOf($parent[$data]) === -1 -->
+					<a data-bind="text: $parent[$data], attr: {'href': '#' + $parent[$data]}"></a>
+					<!-- /ko -->
+
+					<!-- /ko -->
+
+					<!-- ko if: $data === 'required' -->
+					<span class="btn btn-default btn-sm disabled"
+					      data-bind="text: $parent[$data], css: {'btn-danger':  $parent[$data]}"></span>
+					<!-- /ko -->
+
+					<!-- ko if: $data !== 'value' && $data !== 'type' && $data !== 'required' && $data !== 'defaultValue' -->
+					<span data-bind="html: $parent[$data]"></span>
+					<!-- /ko -->
+				</td>
+				<!-- /ko -->
+			</tr>
+
+			<!-- ko if: $data.properties && $data.properties.length -->
+			<tr>
+				<td data-bind="attr: {colspan: Object.keys($data).length - skippedProperties.length}">
+					<!-- ko template: {name: 'table', data: $data.properties} --><!--/ko -->
+				</td>
+			</tr>
+			<!-- /ko -->
+
+			</tbody>
+		</table>
+	</script>
+
+</div><!-- /.container -->
+<script>
+	var types = ['string', 'boolean', 'array', 'object', 'number', 'any', 'oneOf'];
+	var skippedProperties = ['placeholder', 'defaultValue', 'properties'];
+	// Check fetch support
+	if (self.fetch) {
+		// Create a simple viewmodel
+		var ViewModel = function (data) {
+			var _this = this;
+			this.sections = ko.observableArray([]);
+			Object.keys(data).forEach(function (key) {
+				_this.sections.push({
+					id: key,
+					data: data[key]
+				});
+			});
+		};
+		// Create the request
+		var request = new Request('data.json', {
+			method: 'GET',
+			headers: new Headers({
+				'Content-Type': 'text/plain'
+			})
+		});
+		// Fetch the json file
+		fetch(request)
+		.then(function (response) {
+			return response.json();
+		})
+		.then(function (response) {
+			// Apply knockout binding for rendering of the html
+			ko.applyBindings(new ViewModel(response), document.body);
+			document.body.querySelectorAll('.json-example').forEach(function (block) {
+				hljs.highlightBlock(block);
+			});
+		});
+	}
+	else {
+		alert('Fetch not supported!');
+	}
+</script>
+</body>
+</html>

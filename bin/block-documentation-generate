@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+
+const program = require('commander');
+const generate = require('../src/generate');
+const chalk = require('chalk');
+const path = require('path');
+const Settings = require('../src/settings');
+
+program
+.option('-i, --input <destination>', 'Override the input directory')
+.option('-o, --output <destination>', 'Override the output directory')
+.option('-b, --blockName <destination>', 'Override the default blockName format')
+.parse(process.argv);
+
+// Any overwritten settings
+let settingsOverrides = {};
+
+// Set the overwritten settings
+if (program.destination) {
+	settingsOverrides['destination'] = program.destination;
+}
+
+// Actually generate the docs
+generate(Settings.getSettings(settingsOverrides))
+	.then(() => console.log(chalk.green('Done!')))
+	.catch((reason) => console.error(chalk.red(reason)));
