@@ -13,6 +13,8 @@ module.exports = function parseComments(source) {
 		// Parse the file to get the comments
 		const comments = commentParser(source);
 
+		// console.log(JSON.stringify(comments, null, 4));
+
 		// Modify the source to include the parsed comments so we can retrieve them later on
 		source = _.replace(
 			source,

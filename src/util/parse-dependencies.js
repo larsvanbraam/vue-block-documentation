@@ -3,7 +3,7 @@ const getFileImports = require('./get-file-imports');
 const readFile = require('./read-file');
 const transformSource = require('./transform-source');
 const writeFile = require('./write-file');
-const parseComments = require('./parse-comments');
+const addCommentsToSource = require('./add-comments-to-source');
 
 const path = require('path');
 const fs = require('fs-extra');
@@ -26,10 +26,12 @@ module.exports = function parseDependencies(file) {
 				const tempFilePath = `${path.resolve(config.tempFolder, config.settings.input)}/${fileImport}.js`;
 				// Get the absolute path
 				const absolutePath = path.resolve(file, `../${fileImport}.js`);
+				// Run the parser for the imported file to find more dependencies
+				return parseDependencies(absolutePath)
 				// Read the file on the source
-				return readFile(absolutePath)
-				// Parse the comments
-				.then(source => parseComments(source))
+				.then(() => readFile(absolutePath))
+				// Add the comments to the source
+				.then(source => addCommentsToSource(source))
 				// Transform the source to ES2015
 				.then(source => transformSource(source))
 				// Write the parsed content to the temp folder

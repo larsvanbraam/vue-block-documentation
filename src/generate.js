@@ -2,6 +2,7 @@ const fs = require('fs-extra');
 const _ = require('lodash');
 const path = require('path');
 const chalk = require('chalk');
+const progress = require('cli-progress');
 
 const Config = require('./config/config');
 const VueTypes = require('./config/vue-types')();
@@ -13,13 +14,20 @@ const writeFile = require('./util/write-file');
 const readFile = require('./util/read-file');
 const runSource = require('./util/run-source');
 const getDirectories = require('./util/get-directories');
-const parseComments = require('./util/parse-comments');
+const addCommentsToSource = require('./util/add-comments-to-source');
+const generateExampleJSON = require('./util/generate-example-json');
+const getComment = require('./util/get-comment');
 
 const config = Config.getConfig();
 const output = {
 	blocks: [],
 	enums: [],
 };
+
+let progressBar = new progress.Bar({
+	format: 'Parsing blocks: [{bar}] {percentage}% | {value}/{total}',
+	stopOnComplete: true,
+});
 
 /**
  * @description Parse the provided block directory
@@ -32,18 +40,17 @@ function parseBlockDirectory(blockDirectory, settings) {
 	const filePath = path.resolve(`${config.settings.input}/${blockDirectory}/${fileName}`);
 	const tempFilePath = `${path.resolve(config.tempFolder, config.settings.input)}/${fileName}`;
 
-	const comments = {};
-
 	// Load the root file
 	return readFile(filePath)
-	// Use the source to create a comment object that we can use in building the docs
-	.then(source => parseComments(source))
+	// Add the inline comments to the source so we can use them later on
+	.then(source => addCommentsToSource(source))
 	// Write the transformed source to the temp folder
 	.then(source => writeFile(tempFilePath, transformSource(source)))
 	// Parse the dependencies for the block
 	.then(() => parseDependencies(filePath))
-	// Read the temp file and execute it!
+	// Read the temp file contents
 	.then(() => readFile(tempFilePath))
+	// Run the parsed temp file
 	.then((source) => {
 		// Execute the source in a sandbox
 		const executedSource = runSource(source, tempFilePath).default;
@@ -58,6 +65,11 @@ function parseBlockDirectory(blockDirectory, settings) {
 				data: generateExampleJSON(properties, {})
 			}, null, 4)
 		});
+
+		// Update the progress bar
+		if (config.enableProgressBar) {
+			progressBar.increment();
+		}
 	});
 }
 
@@ -67,14 +79,24 @@ function parseBlockDirectory(blockDirectory, settings) {
  * @param parent
  */
 function parseProperties(properties) {
-	const allComments = properties[config.commentKey] || {};
+	const commentProperty = properties[config.commentKey];
+	let comments = [];
+
+	if(commentProperty !== void 0 && commentProperty.length) {
+		comments = commentProperty[0].tags;
+	}
 
 	return Object.keys(properties)
-	// Filter out the comment key section
-	.filter(key => key !== config.commentKey)
+	// Filter out the ignored properties
+	.filter((key, index) => {
+		const shouldKeep = getComment(key, 'ignore', comments) === void 0;
+
+		// Skip ignored properties and the config key
+		return shouldKeep && key !== config.commentKey;
+	})
+	// Parse the properties
 	.map((key, index) => {
-		const propertyComments = allComments[index] ? allComments[index].tags : [];
-		return parseProperty(key, properties[key], propertyComments);
+		return parseProperty(key, properties[key], comments);
 	});
 }
 
@@ -102,8 +124,9 @@ function parseProperty(key, data, comments) {
 			break;
 	}
 
-	const description = comments.find((comment) => comment.name === 'description');
-	const placeholder = comments.find((comment) => comment.name === 'placeholder');
+	const description = getComment(key,  'description', comments);
+	const placeholder = getComment(key, 'placeholder', comments);
+	console.log('ParseProperty', key, 'children', Object.keys(childProperties).length);
 
 	return {
 		name: key,
@@ -114,38 +137,6 @@ function parseProperty(key, data, comments) {
 		placeholder: placeholder ? placeholder.description : '-',
 		properties: parseProperties(childProperties)
 	};
-}
-
-function generateExampleJSON(properties, root) {
-	properties.forEach(function (property) {
-		switch(property.type) {
-			case VueTypes.label[VueTypes.STRING]:
-				root[property.name] = property.placeholder || config.placeholderValues.string
-				break;
-			case VueTypes.label[VueTypes.BOOLEAN]:
-				root[property.name] = config.placeholderValues.boolean;
-				break;
-			case VueTypes.label[VueTypes.NUMBER]:
-				root[property.name] = config.placeholderValues.boolean;
-				break;
-			case VueTypes.label[VueTypes.SHAPE]:
-			case VueTypes.label[VueTypes.OBJECT_OF]:
-				root[property.name] = generateExampleJSON( property.properties, {} );
-				break;
-			case VueTypes.label[VueTypes.ARRAY_OF]:
-				root[property.name] = [];
-				root[property.name].push( generateExampleJSON( property.properties, {} ) );
-				break;
-			case VueTypes.label[VueTypes.ONE_OF]:
-				root[property.name] = property.placeholder || property.properties[0].name;
-				break;
-			default:
-				root[property.name] = 'TODO: ' + property.type;
-				break;
-		}
-	});
-
-	return root;
 }
 
 /**
@@ -160,15 +151,27 @@ module.exports = function generate(settings) {
 	const blockDirectories = getDirectories(path.resolve(settings.input));
 	const outputDirectory = path.resolve(`${settings.output}/`);
 	const templateDirectory = path.resolve(__dirname, config.localTemplateDirectory);
+
+	// Star the progress bar
+	if (config.enableProgressBar) {
+		progressBar.start(blockDirectories.length, 0);
+	}
+
 	// Create a _temp folder for outputting the generated parsed js files
 	return createFolder(config.tempFolder)
 	// Parse all the blocks
 	.then(() => Promise.all(blockDirectories.map(directory => parseBlockDirectory(directory, settings))))
-	// Creat the documentation folder
+	// Create the documentation folder
 	.then(() => createFolder(outputDirectory))
+	// Write the output json to the documentation folder
 	.then(() => fs.writeJson(`${outputDirectory}/${config.outputJsonFile}`, output))
+	// Copy the output template to the documentation folder
 	.then(() => fs.copy(
 		`${templateDirectory}/${config.outputIndexFile}`,
 		`${outputDirectory}/${config.outputIndexFile}`
-	));
+	))
+	// Empty the temp folder
+	// .then(() => fs.emptyDirSync(config.tempFolder))
+	// Remove the temp folder
+	// .then(() => fs.rmdir(config.tempFolder))
 };

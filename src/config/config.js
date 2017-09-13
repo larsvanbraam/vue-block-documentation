@@ -1,4 +1,5 @@
 const config = {
+	enableProgressBar: false,
 	typeLabel: '_vueTypes_name',
 	commentKey: '__comments',
 	outputJsonFile: 'data.json',
