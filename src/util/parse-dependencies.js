@@ -1,14 +1,13 @@
-const Config = require('../config/config');
 const getFileImports = require('./get-file-imports');
 const readFile = require('./read-file');
 const transformSource = require('./transform-source');
 const writeFile = require('./write-file');
 const addCommentsToSource = require('./add-comments-to-source');
+const stripFileFromUrl = require('./strip-file-from-url');
 
 const path = require('path');
-const fs = require('fs-extra');
-
-const config = Config.getConfig();
+const chalk = require('chalk');
+const runSeq = require('sequential-promise');
 
 /**
  * @description Parse the imports of a provided file by transforming the source to es2015 and writing the output to
@@ -16,29 +15,41 @@ const config = Config.getConfig();
  * @param file
  * @returns {Promise}
  */
-module.exports = function parseDependencies(file) {
-	return new Promise((resolve, reject) => {
-		// Get the imports for the current file
-		getFileImports(file).then((fileImports) => {
-			// Loop through all the dependencies
-			Promise.all(fileImports.map(fileImport => {
-				// Build the temp file path for the transformed source
-				const tempFilePath = `${path.resolve(config.tempFolder, config.settings.input)}/${fileImport}.js`;
-				// Get the absolute path
-				const absolutePath = path.resolve(file, `../${fileImport}.js`);
+module.exports = function parseDependencies(file, sourcePath, tempPath) {
+	// console.log('------------');
+	// console.log('Parse dependencies');
+	// console.log('file: ' + chalk.yellow(file));
+	// console.log('sourceLocation: ' + chalk.cyan(sourcePath));
+	// console.log('tempLocation: ' + chalk.cyan(tempPath));
+
+	// Get the imports for the current file
+	return getFileImports(file).then((fileImports) => {
+		// console.log('Files to be parsed:  \n' + JSON.stringify(fileImports, null, 4));
+
+		// Loop through all the dependencies
+		return runSeq(fileImports.map(fileImport => {
+			return () => {
+				const fileImportFullPath = path.resolve(sourcePath, `${fileImport}.js`);
+				const fileImportTempPath = path.resolve(tempPath, `${fileImport}.js`);
+
+				// console.log('Parsing file import');
+				// console.log('- full path' + fileImportFullPath );
+				// console.log('- temp path' + fileImportTempPath );
+
+				const dependencySourcePath = stripFileFromUrl(fileImportFullPath);
+				const dependencyTempPath = stripFileFromUrl(fileImportTempPath);
+
 				// Run the parser for the imported file to find more dependencies
-				return parseDependencies(absolutePath)
+				return parseDependencies(fileImportFullPath, dependencySourcePath, dependencyTempPath)
 				// Read the file on the source
-				.then(() => readFile(absolutePath))
+				.then(() => readFile(fileImportFullPath))
 				// Add the comments to the source
 				.then(source => addCommentsToSource(source))
 				// Transform the source to ES2015
 				.then(source => transformSource(source))
 				// Write the parsed content to the temp folder
-				.then(source => writeFile(tempFilePath, source));
-			}));
-		})
-		.then(() => resolve())
-		.catch(reason => reject(`Unable to parse the dependencies reason: ${reason}`));
+				.then(source => writeFile(fileImportTempPath, source))
+			};
+		}));
 	});
 };

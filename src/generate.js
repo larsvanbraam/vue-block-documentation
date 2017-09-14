@@ -3,6 +3,7 @@ const _ = require('lodash');
 const path = require('path');
 const chalk = require('chalk');
 const progress = require('cli-progress');
+const runSeq = require('sequential-promise');
 
 const Config = require('./config/config');
 const VueTypes = require('./config/vue-types')();
@@ -17,6 +18,7 @@ const getDirectories = require('./util/get-directories');
 const addCommentsToSource = require('./util/add-comments-to-source');
 const generateExampleJSON = require('./util/generate-example-json');
 const getComment = require('./util/get-comment');
+const addCommentKeysToSource = require('./util/add-comment-keys-to-source');
 
 const config = Config.getConfig();
 const output = {
@@ -35,26 +37,41 @@ let progressBar = new progress.Bar({
  * @param settings
  * @returns {Promise.<TResult>}
  */
-function parseBlockDirectory(blockDirectory, settings) {
+function parseBlockDirectory(blockDirectory) {
+	// console.log('\n');
+	// console.log(chalk.green('Block: ' + blockDirectory));
+	const settings = config.settings;
+
 	const fileName = _.replace(settings.file, config.replaceableBlockName, blockDirectory);
-	const filePath = path.resolve(`${config.settings.input}/${blockDirectory}/${fileName}`);
-	const tempFilePath = `${path.resolve(config.tempFolder, config.settings.input)}/${fileName}`;
+	const sourcePath = path.resolve(`${config.settings.input}/${blockDirectory}`);
+	const sourceFile = `${sourcePath}/${fileName}`;
+	const tempPath = `${path.resolve(config.tempFolder, config.settings.input)}/${blockDirectory}`;
+	const tempFile = `${tempPath}/${fileName}`;
+	const filePath = path.resolve(`${config.settings.input}/${blockDirectory}`);
 
 	// Load the root file
-	return readFile(filePath)
+	return readFile(sourceFile)
 	// Add the inline comments to the source so we can use them later on
 	.then(source => addCommentsToSource(source))
 	// Write the transformed source to the temp folder
-	.then(source => writeFile(tempFilePath, transformSource(source)))
+	.then(source => writeFile(tempFile, transformSource(source)))
 	// Parse the dependencies for the block
-	.then(() => parseDependencies(filePath))
+	.then(() => parseDependencies(sourceFile, sourcePath, tempPath))
 	// Read the temp file contents
-	.then(() => readFile(tempFilePath))
+	.then(() => readFile(tempFile))
 	// Run the parsed temp file
 	.then((source) => {
 		// Execute the source in a sandbox
-		const executedSource = runSource(source, tempFilePath).default;
-		const properties = parseProperties(executedSource);
+		const executedSource = runSource(source, tempFile).default;
+
+		// Add the nested comment keys to all the keys in the executed source so we can retrieve the matching
+		// comment later on
+		const executedSourceWithCommentKeys = addCommentKeysToSource(executedSource);
+
+		// Get the root level comments
+		const comments = executedSourceWithCommentKeys[config.commentsKey] || [];
+		// Parse all the properties
+		const properties = parseProperties(executedSourceWithCommentKeys, comments);
 
 		// Start the parsing of the properties
 		output.blocks.push({
@@ -78,26 +95,19 @@ function parseBlockDirectory(blockDirectory, settings) {
  * @param blockData
  * @param parent
  */
-function parseProperties(properties) {
-	const commentProperty = properties[config.commentKey];
-	let comments = [];
-
-	if(commentProperty !== void 0 && commentProperty.length) {
-		comments = commentProperty[0].tags;
-	}
+function parseProperties(properties, comments) {
 
 	return Object.keys(properties)
 	// Filter out the ignored properties
 	.filter((key, index) => {
-		const shouldKeep = getComment(key, 'ignore', comments) === void 0;
+		const name = properties[key][config.commentKey];
+		const shouldKeep = getComment(name, 'ignore', comments) === void 0;
 
 		// Skip ignored properties and the config key
-		return shouldKeep && key !== config.commentKey;
+		return shouldKeep && key !== config.commentsKey;
 	})
 	// Parse the properties
-	.map((key, index) => {
-		return parseProperty(key, properties[key], comments);
-	});
+	.map((key, index) => parseProperty(key, properties[key], comments));
 }
 
 /**
@@ -108,11 +118,13 @@ function parseProperties(properties) {
  */
 function parseProperty(key, data, comments) {
 	const type = data[config.typeLabel];
+	const name = data[config.commentKey];
 	let childProperties = {};
 
 	switch (type) {
 		case VueTypes.SHAPE:
 		case VueTypes.OBJECT_OF:
+		case VueTypes.ARRAY_OF:
 			childProperties = data.properties;
 			break;
 		case VueTypes.ONE_OF:
@@ -121,12 +133,21 @@ function parseProperty(key, data, comments) {
 					[config.typeLabel]: typeof property,
 				};
 			});
-			break;
+			break
 	}
+	const description = getComment(name, 'description', comments);
+	const placeholder = getComment(name, 'placeholder', comments);
 
-	const description = getComment(key,  'description', comments);
-	const placeholder = getComment(key, 'placeholder', comments);
-	console.log('ParseProperty', key, 'children', Object.keys(childProperties).length);
+	// console.log('Parse property', chalk.yellow(key));
+
+	// Check if the child has it's own comments, if so use them instead of the parents comments
+	if (
+		Object.keys(childProperties).length &&
+		childProperties[config.commentsKey] !== void 0 &&
+		childProperties[config.commentsKey].length > 0
+	) {
+		comments = childProperties[config.commentsKey][0].tags;
+	}
 
 	return {
 		name: key,
@@ -135,7 +156,7 @@ function parseProperty(key, data, comments) {
 		defaultValue: typeof data.default === 'string' && data.default !== '' ? data.default : '-',
 		description: description ? description.description : '-',
 		placeholder: placeholder ? placeholder.description : '-',
-		properties: parseProperties(childProperties)
+		properties: parseProperties(childProperties, comments)
 	};
 }
 
@@ -160,7 +181,7 @@ module.exports = function generate(settings) {
 	// Create a _temp folder for outputting the generated parsed js files
 	return createFolder(config.tempFolder)
 	// Parse all the blocks
-	.then(() => Promise.all(blockDirectories.map(directory => parseBlockDirectory(directory, settings))))
+	.then(() => runSeq(blockDirectories.map((directory, index) => () => parseBlockDirectory(directory))))
 	// Create the documentation folder
 	.then(() => createFolder(outputDirectory))
 	// Write the output json to the documentation folder
@@ -171,7 +192,7 @@ module.exports = function generate(settings) {
 		`${outputDirectory}/${config.outputIndexFile}`
 	))
 	// Empty the temp folder
-	// .then(() => fs.emptyDirSync(config.tempFolder))
+	.then(() => fs.emptyDirSync(config.tempFolder))
 	// Remove the temp folder
-	// .then(() => fs.rmdir(config.tempFolder))
+	.then(() => fs.rmdir(config.tempFolder));
 };

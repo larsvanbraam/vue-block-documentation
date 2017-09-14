@@ -29,8 +29,8 @@ const vueTypeLabels = {
 	[vueType.INSTANCE_OF]: 'instanceOf',
 	[vueType.ONE_OF]: 'oneOf',
 	[vueType.ONE_OF_TYPE]: 'oneOfType',
-	[vueType.ARRAY_OF]: 'array',
-	[vueType.OBJECT_OF]: 'object',
+	[vueType.ARRAY_OF]: 'arrayOf',
+	[vueType.OBJECT_OF]: 'objectOf',
 	[vueType.SHAPE]: 'object',
 };
 

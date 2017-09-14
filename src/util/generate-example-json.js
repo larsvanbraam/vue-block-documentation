@@ -1,4 +1,7 @@
+const Config = require('../config/config');
 const VueTypes = require('../config/vue-types')();
+
+const config = Config.getConfig();
 
 /**
  * @description Generates an example json based on the comment values and types
@@ -13,10 +16,10 @@ module.exports = function generateExampleJSON(properties, root) {
 				root[property.name] = property.placeholder || config.placeholderValues.string;
 				break;
 			case VueTypes.label[VueTypes.BOOLEAN]:
-				root[property.name] = config.placeholderValues.boolean;
+				root[property.name] = property.placeholder || config.placeholderValues.boolean;
 				break;
 			case VueTypes.label[VueTypes.NUMBER]:
-				root[property.name] = config.placeholderValues.boolean;
+				root[property.name] = property.placeholder || config.placeholderValues.number;
 				break;
 			case VueTypes.label[VueTypes.SHAPE]:
 			case VueTypes.label[VueTypes.OBJECT_OF]:

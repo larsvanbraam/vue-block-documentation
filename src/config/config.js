@@ -1,7 +1,8 @@
 const config = {
-	enableProgressBar: false,
+	enableProgressBar: true,
 	typeLabel: '_vueTypes_name',
-	commentKey: '__comments',
+	commentsKey: '__comments',
+	commentKey: '__comment',
 	outputJsonFile: 'data.json',
 	outputIndexFile: 'index.html',
 	tempFolder: './_temp',
