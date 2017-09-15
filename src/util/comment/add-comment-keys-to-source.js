@@ -1,5 +1,4 @@
-const Config = require('../config/config');
-const config = Config.getConfig();
+const Config = require('../../config/config');
 
 /**
  * @description Loop through the properties and add the comment key to the property
@@ -8,8 +7,8 @@ const config = Config.getConfig();
  */
 function addKeysToProperties(properties, previousCommentKey) {
 	Object.keys(properties).forEach((key) => {
-		const hasComments = properties[config.commentsKey] !== void 0;
-		if (key !== config.commentsKey) {
+		const hasComments = properties[Config.COMMENTS_KEY] !== void 0;
+		if (key !== Config.COMMENTS_KEY) {
 			let commentKey = key;
 			// console.log(Chalk.red('KEY: ' + key));
 			// console.log('do we need to restart the namespace?', hasComments)
@@ -21,7 +20,7 @@ function addKeysToProperties(properties, previousCommentKey) {
 			// console.log('namespace: ', commentKey);
 
 			// Add to the object
-			properties[key][config.commentKey] = commentKey;
+			properties[key][Config.COMMENT_KEY] = commentKey;
 			// Check for child properties
 			const childProperties = properties[key].properties;
 			// Restart the loop if required

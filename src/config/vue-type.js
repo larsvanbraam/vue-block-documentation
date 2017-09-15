@@ -1,0 +1,16 @@
+module.exports = Object.freeze({
+	ANY: 'any',
+	ARRAY: 'array',
+	BOOL: 'bool',
+	FUNC: 'func',
+	NUMBER: 'number',
+	INTEGER: 'integer',
+	OBJECT: 'object',
+	STRING: 'string',
+	INSTANCE_OF: 'instanceOf',
+	ONE_OF: 'oneOf',
+	ONE_OF_TYPE: 'oneOfType',
+	ARRAY_OF: 'arrayOf',
+	OBJECT_OF: 'objectOf',
+	SHAPE: 'shape',
+});

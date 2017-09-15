@@ -1,6 +1,6 @@
-module.exports = function stripFileFromUrl(url) {
+module.exports = function stripFileFromPath(path) {
 	// Split into parts
-	const parts = url.split('/');
+	const parts = path.split('/');
 	// Strip out the file
 	parts.pop();
 	//return the url

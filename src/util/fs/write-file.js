@@ -10,7 +10,9 @@ const readFile = require('./read-file');
  * @returns {Promise}
  */
 module.exports = function writeFile(file, contents) {
+	// Check if the file does not exist before we write it!
 	return readFile(file)
+	// If it fails that means we still have to write it!
 	.catch(() => {
 		// check if the file already exists
 		return new Promise((resolve, reject) => {

@@ -1,4 +1,4 @@
-const proxyMethods = require('../config/proxy-methods')();
+const ProxyMethods = require('../config/proxy-methods');
 
 /**
  * @description Some vue methods do not return the required response so we proxy them with these methods!
@@ -6,10 +6,10 @@ const proxyMethods = require('../config/proxy-methods')();
  * @returns {*}
  */
 module.exports = function proxySourceMethods(source) {
-	Object.keys(proxyMethods).forEach((key) => {
+	Object.keys(ProxyMethods).forEach((key) => {
 		const regex = new RegExp(`VueTypes.${key}`, 'g');
 		// Get the value
-		const method = proxyMethods[key];
+		const method = ProxyMethods[key];
 		// Replace with the custom shape method
 		source = source.replace(regex, key);
 		// Merge the source

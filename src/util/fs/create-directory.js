@@ -1,11 +1,11 @@
 const fs = require('fs-extra');
 
 /**
- * @description Create a temp folder for outputting the parsed js files
+ * @description Create a folder on a provided path
  * @param folder
  * @returns {Promise.<T>}
  */
-module.exports = function createFolder(folder) {
+module.exports = function createDirectory(folder) {
 	return new Promise((resolve, reject) => {
 		fs.ensureDir(folder).then(resolve).catch((reason => reject('Unable to create folder')));
 	});

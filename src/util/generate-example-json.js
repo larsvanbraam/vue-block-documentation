@@ -1,7 +1,6 @@
 const Config = require('../config/config');
-const VueTypes = require('../config/vue-types')();
-
-const config = Config.getConfig();
+const VueType = require('../config/vue-type');
+const VueTypesLabel = require('../config/vue-type-label');
 
 /**
  * @description Generates an example json based on the comment values and types
@@ -12,24 +11,24 @@ const config = Config.getConfig();
 module.exports = function generateExampleJSON(properties, root) {
 	properties.forEach(function (property) {
 		switch (property.type) {
-			case VueTypes.label[VueTypes.STRING]:
-				root[property.name] = property.placeholder || config.placeholderValues.string;
+			case VueTypesLabel[VueType.STRING]:
+				root[property.name] = property.placeholder || Config.PLACEHOLDER_STRING;
 				break;
-			case VueTypes.label[VueTypes.BOOLEAN]:
-				root[property.name] = property.placeholder || config.placeholderValues.boolean;
+			case VueTypesLabel[VueType.BOOLEAN]:
+				root[property.name] = property.placeholder || Config.PLACEHOLDER_BOOLEAN;
 				break;
-			case VueTypes.label[VueTypes.NUMBER]:
-				root[property.name] = property.placeholder || config.placeholderValues.number;
+			case VueTypesLabel[VueType.NUMBER]:
+				root[property.name] = property.placeholder || Config.PLACEHOLDER_NUMBER;
 				break;
-			case VueTypes.label[VueTypes.SHAPE]:
-			case VueTypes.label[VueTypes.OBJECT_OF]:
+			case VueTypesLabel[VueType.SHAPE]:
+			case VueTypesLabel[VueType.OBJECT_OF]:
 				root[property.name] = generateExampleJSON(property.properties, {});
 				break;
-			case VueTypes.label[VueTypes.ARRAY_OF]:
+			case VueTypesLabel[VueType.ARRAY_OF]:
 				root[property.name] = [];
 				root[property.name].push(generateExampleJSON(property.properties, {}));
 				break;
-			case VueTypes.label[VueTypes.ONE_OF]:
+			case VueTypesLabel[VueType.ONE_OF]:
 				root[property.name] = property.placeholder || property.properties[0].name;
 				break;
 			default:

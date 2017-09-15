@@ -1,9 +1,9 @@
 const getFileImports = require('./get-file-imports');
-const readFile = require('./read-file');
+const readFile = require('./fs/read-file');
 const transformSource = require('./transform-source');
-const writeFile = require('./write-file');
-const addCommentsToSource = require('./add-comments-to-source');
-const stripFileFromUrl = require('./strip-file-from-url');
+const writeFile = require('./fs/write-file');
+const addCommentsToSource = require('./comment/add-comments-to-source');
+const stripFileFromPath = require('./fs/strip-file-from-path');
 
 const path = require('path');
 const chalk = require('chalk');
@@ -16,31 +16,21 @@ const runSeq = require('sequential-promise');
  * @returns {Promise}
  */
 module.exports = function parseDependencies(file, sourcePath, tempPath) {
-	// console.log('------------');
-	// console.log('Parse dependencies');
-	// console.log('file: ' + chalk.yellow(file));
-	// console.log('sourceLocation: ' + chalk.cyan(sourcePath));
-	// console.log('tempLocation: ' + chalk.cyan(tempPath));
-
 	// Get the imports for the current file
 	return getFileImports(file).then((fileImports) => {
-		// console.log('Files to be parsed:  \n' + JSON.stringify(fileImports, null, 4));
-
 		// Loop through all the dependencies
 		return runSeq(fileImports.map(fileImport => {
 			return () => {
+				// Get the full paths and the temp path of the source files
 				const fileImportFullPath = path.resolve(sourcePath, `${fileImport}.js`);
 				const fileImportTempPath = path.resolve(tempPath, `${fileImport}.js`);
-
-				// console.log('Parsing file import');
-				// console.log('- full path' + fileImportFullPath );
-				// console.log('- temp path' + fileImportTempPath );
-
-				const dependencySourcePath = stripFileFromUrl(fileImportFullPath);
-				const dependencyTempPath = stripFileFromUrl(fileImportTempPath);
-
+				// Get the full path and the temp path of the dependency file
+				const dependencySourcePath = stripFileFromPath(fileImportFullPath);
+				const dependencyTempPath = stripFileFromPath(fileImportTempPath);
+				// parsing files that already exist is a bit of overhead so skip them!
+				return readFile(fileImportTempPath)
 				// Run the parser for the imported file to find more dependencies
-				return parseDependencies(fileImportFullPath, dependencySourcePath, dependencyTempPath)
+				.catch(() => parseDependencies(fileImportFullPath, dependencySourcePath, dependencyTempPath))
 				// Read the file on the source
 				.then(() => readFile(fileImportFullPath))
 				// Add the comments to the source

@@ -1,5 +1,4 @@
-const Config = require('../config/config');
-const config = Config.getConfig();
+const Config = require('../../config/config');
 const commentParser = require('comment-parser');
 const _ = require('lodash');
 
@@ -19,7 +18,7 @@ module.exports = function parseComments(source) {
 		source = _.replace(
 			source,
 			'export default {',
-			`export default {\n\t${config.commentsKey}: ${JSON.stringify(comments)},\n`);
+			`export default {\n\t${Config.COMMENTS_KEY}: ${JSON.stringify(comments)},\n`);
 
 		// Return the modified source
 		resolve(source);
