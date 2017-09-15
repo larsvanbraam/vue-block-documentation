@@ -4,8 +4,8 @@
 	"description": "Automatically generate API documentation for blocks.",
 	"preferGlobal": true,
 	"bin": {
-		"init": "bin/block-documentation-init",
-		"generate": "bin/block-documentation-generate"
+		"init-block-documentation": "bin/init-block-documentation",
+		"generate-block-documentation": "bin/generate-block-documentation"
 	},
 	"repository": {
 		"type": "git",

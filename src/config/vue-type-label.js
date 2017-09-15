@@ -12,7 +12,7 @@ module.exports = Object.freeze({
 	[VueType.INSTANCE_OF]: 'instanceOf',
 	[VueType.ONE_OF]: 'oneOf',
 	[VueType.ONE_OF_TYPE]: 'oneOfType',
-	[VueType.ARRAY_OF]: 'arrayOf',
+	[VueType.ARRAY_OF]: 'array',
 	[VueType.OBJECT_OF]: 'objectOf',
 	[VueType.SHAPE]: 'object',
 });
