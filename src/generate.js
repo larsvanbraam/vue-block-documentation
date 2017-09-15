@@ -39,12 +39,11 @@ let progressBar = new progress.Bar({
  * @returns {Promise.<TResult>}
  */
 function parseBlockDirectory(blockDirectory, settings) {
-	const fileName = _.replace(settings.file, Config.REPLACEABLE_BLOCK_NAME, blockDirectory);
+	const fileName = blockDirectory + 'Data.js';
 	const sourcePath = path.resolve(`${settings.input}/${blockDirectory}`);
 	const sourceFile = `${sourcePath}/${fileName}`;
 	const tempPath = `${path.resolve(Config.OUTPUT_TEMP_FOLDER, settings.input)}/${blockDirectory}`;
 	const tempFile = `${tempPath}/${fileName}`;
-	const filePath = path.resolve(`${settings.input}/${blockDirectory}`);
 
 	// Load the root file
 	return readFile(sourceFile)

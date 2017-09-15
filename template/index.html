@@ -26,6 +26,12 @@
 		.capitalize {
 			text-transform: capitalize;
 		}
+
+		.overflow-ellipsis {
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
 	</style>
 </head>
 <body>
@@ -43,7 +49,7 @@
 						</span>
 					</span>
 			<!-- ko foreach: data -->
-			<a href="#" class="list-group-item" data-bind="attr: {href: '#' + $data.name}, html: $data.name"></a>
+			<a href="#" class="list-group-item overflow-ellipsis" data-bind="attr: {href: '#' + $data.name}, html: $data.name"></a>
 			<!-- /ko -->
 		</div>
 		<!-- /ko -->

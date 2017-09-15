@@ -7,7 +7,6 @@ module.exports = Object.freeze({
 	OUTPUT_INDEX_FILE: 'index.html',
 	OUTPUT_TEMP_FOLDER: './_temp',
 	LOCAL_TEMPLATE_FOLDER: '../template',
-	REPLACEABLE_BLOCK_NAME: '{BlockName}',
 	PLACEHOLDER_STRING: 'Lorem ipsum dolor sit amet',
 	PLACEHOLDER_BOOLEAN: true,
 	PLACEHOLDER_NUMBER: 1,
