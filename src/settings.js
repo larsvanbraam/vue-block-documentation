@@ -8,8 +8,7 @@ const _ = require('lodash');
 
 const defaultSettings = {
 	input: './block',
-	output: './documentation',
-	file: '{BlockName}Data.js',
+	output: './documentation'
 };
 
 exports.getSettings = function (overrides = {}, ignoreLocalSettings = false, ignoreTemplateSettings = false) {

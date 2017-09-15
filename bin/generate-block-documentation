@@ -7,9 +7,8 @@ const path = require('path');
 const Settings = require('../src/settings');
 
 program
-.option('-i, --input <destination>', 'Override the input directory')
-.option('-o, --output <destination>', 'Override the output directory')
-.option('-b, --blockName <destination>', 'Override the default blockName format')
+.option('-i, --input <input>', 'Override the input directory')
+.option('-o, --output <output>', 'Override the output directory')
 .parse(process.argv);
 
 // Any overwritten settings

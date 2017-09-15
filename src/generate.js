@@ -60,11 +60,9 @@ function parseBlockDirectory(blockDirectory, settings) {
 	.then((source) => {
 		// Execute the source in a sandbox
 		const executedSource = runSource(source, tempFile).default;
-
 		// Add the nested comment keys to all the keys in the executed source so we can retrieve the matching
 		// comment later on
 		const executedSourceWithCommentKeys = addCommentKeysToSource(executedSource);
-
 		// Get the root level comments
 		const comments = executedSourceWithCommentKeys[Config.COMMENTS_KEY] || [];
 		// Parse all the properties
