@@ -133,7 +133,7 @@ function parseProperty(key, data, comments) {
 					[config.typeLabel]: typeof property,
 				};
 			});
-			break
+			break;
 	}
 	const description = getComment(name, 'description', comments);
 	const placeholder = getComment(name, 'placeholder', comments);
@@ -166,33 +166,40 @@ function parseProperty(key, data, comments) {
  * @returns {Promise}
  */
 module.exports = function generate(settings) {
-	// Write the settings to the config object
-	Config.setSettings(settings);
-	// Get the blocks
-	const blockDirectories = getDirectories(path.resolve(settings.input));
-	const outputDirectory = path.resolve(`${settings.output}/`);
-	const templateDirectory = path.resolve(__dirname, config.localTemplateDirectory);
+	const blockFolder = path.resolve(settings.input);
 
-	// Star the progress bar
-	if (config.enableProgressBar) {
-		progressBar.start(blockDirectories.length, 0);
+	// Check if the block folder actually exists!
+	if (fs.existsSync(blockFolder)) {
+		// Write the settings to the config object
+		Config.setSettings(settings);
+		// Get the blocks
+		const blockDirectories = getDirectories(path.resolve(settings.input));
+		const outputDirectory = path.resolve(`${settings.output}/`);
+		const templateDirectory = path.resolve(__dirname, config.localTemplateDirectory);
+
+		// Star the progress bar
+		if (config.enableProgressBar) {
+			progressBar.start(blockDirectories.length, 0);
+		}
+
+		// Create a _temp folder for outputting the generated parsed js files
+		return createFolder(config.tempFolder)
+		// Parse all the blocks
+		.then(() => runSeq(blockDirectories.map((directory, index) => () => parseBlockDirectory(directory))))
+		// Create the documentation folder
+		.then(() => createFolder(outputDirectory))
+		// Write the output json to the documentation folder
+		.then(() => fs.writeJson(`${outputDirectory}/${config.outputJsonFile}`, output))
+		// Copy the output template to the documentation folder
+		.then(() => fs.copy(
+			`${templateDirectory}/${config.outputIndexFile}`,
+			`${outputDirectory}/${config.outputIndexFile}`
+		))
+		// Empty the temp folder
+		.then(() => fs.emptyDirSync(config.tempFolder))
+		// Remove the temp folder
+		.then(() => fs.rmdir(config.tempFolder));
+	} else {
+		return Promise.reject(`Oops! The provided input folder(${settings.input}) does not exist!`);
 	}
-
-	// Create a _temp folder for outputting the generated parsed js files
-	return createFolder(config.tempFolder)
-	// Parse all the blocks
-	.then(() => runSeq(blockDirectories.map((directory, index) => () => parseBlockDirectory(directory))))
-	// Create the documentation folder
-	.then(() => createFolder(outputDirectory))
-	// Write the output json to the documentation folder
-	.then(() => fs.writeJson(`${outputDirectory}/${config.outputJsonFile}`, output))
-	// Copy the output template to the documentation folder
-	.then(() => fs.copy(
-		`${templateDirectory}/${config.outputIndexFile}`,
-		`${outputDirectory}/${config.outputIndexFile}`
-	))
-	// Empty the temp folder
-	.then(() => fs.emptyDirSync(config.tempFolder))
-	// Remove the temp folder
-	.then(() => fs.rmdir(config.tempFolder));
 };

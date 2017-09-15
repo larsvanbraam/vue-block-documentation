@@ -19,7 +19,6 @@ let settingsOverrides = {};
 if (program.destination) {
 	settingsOverrides['destination'] = program.destination;
 }
-
 // Actually generate the docs
 generate(Settings.getSettings(settingsOverrides))
 	.then(() => console.log(chalk.green('Done!')))

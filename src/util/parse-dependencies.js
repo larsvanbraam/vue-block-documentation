@@ -48,7 +48,7 @@ module.exports = function parseDependencies(file, sourcePath, tempPath) {
 				// Transform the source to ES2015
 				.then(source => transformSource(source))
 				// Write the parsed content to the temp folder
-				.then(source => writeFile(fileImportTempPath, source))
+				.then(source => writeFile(fileImportTempPath, source));
 			};
 		}));
 	});
