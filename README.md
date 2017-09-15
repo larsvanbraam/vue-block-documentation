@@ -114,3 +114,10 @@ export default {
 };
 ```
 *Note: Adding description and placeholders to your object also works when using the external objects.*
+
+## Demo
+This tool wil only work on a vue-block-system project. I've created an example output so you can preview what the output might look like!
+
+### [Check the example output online.](http://vue-block-documentation.larsvanbraam.nl)
+
+
