@@ -1,5 +1,5 @@
 # vue-block-documentation
-A CLI generator to generate API documentation [vue-block-system projects](https://www.github.com/larsvanbraam/vue-block-system) 
+A CLI generator to generate API documentation [vue-block-system projects](https://www.github.com/larsvanbraam/vue-block-system)
 
 ## Install
 
@@ -10,6 +10,8 @@ $ npm install -g vue-block-documentation
 ## Commands
 
 To use the generator open your console and change directory to the src directory of your [vue-block-system project](https://www.github.com/larsvanbraam/vue-block-system).
+
+![Demo](http://vue-block-documentation.larsvanbraam.nl/demo.gif)
 
 #### init-block-documentation
 
