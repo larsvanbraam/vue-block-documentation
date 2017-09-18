@@ -33,7 +33,8 @@ Options:
 * ```-o, --output <output>```: Override the output directory.
 
 ## Typing your block data
-The tool will scan the block folders for the `{BlockName}Data.js` files, this file should contain all the data provided by your API. Describing the data is done by using [Vue-Types](https://github.com/dwightjack/vue-types.
+The tool will scan the block folders for the `{BlockName}Data.js` files, this file should contain all the data
+provided by your API. Describing the data is done by using [Vue-Types](https://github.com/dwightjack/vue-types).
 
 ### Basic example 
 
