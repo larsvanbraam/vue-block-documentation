@@ -1,3 +1,7 @@
+[![Travis](https://img.shields.io/travis/larsvanbraam/vue-block-documentation.svg?maxAge=2592000)](https://travis-ci.org/larsvanbraam/vue-block-documentation)
+[![npm](https://img.shields.io/npm/dm/vue-block-documentation.svg?maxAge=2592000)](https://www.npmjs.com/package/vue-block-documentation)
+[![GitHub issues](https://img.shields.io/github/issues/larsvanbraam/vue-block-documentation.svg?style=flat-square)](https://github.com/larsvanbraam/vue-block-documentation/issues)
+
 # vue-block-documentation
 A CLI generator to generate API documentation [vue-block-system projects](https://www.github.com/larsvanbraam/vue-block-system)
 
