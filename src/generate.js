@@ -61,11 +61,13 @@ function parseBlockDirectory(blockDirectory, settings) {
 		const executedSource = runSource(source, tempFile).default;
 		// Add the nested comment keys to all the keys in the executed source so we can retrieve the matching
 		// comment later on
-		const executedSourceWithCommentKeys = addCommentKeysToSource(executedSource);
+		addCommentKeysToSource(executedSource);
 		// Get the root level comments
-		const comments = executedSourceWithCommentKeys[Config.COMMENTS_KEY] || [];
+		let comments = executedSource[Config.COMMENTS_KEY] || [];
+		// Get the tags level
+		comments = comments.length ? comments[0].tags : [];
 		// Parse all the properties
-		const properties = parseProperties(executedSourceWithCommentKeys, comments);
+		const properties = parseProperties(executedSource, comments);
 
 		// Start the parsing of the properties
 		output.blocks.push({
@@ -131,6 +133,7 @@ function parseProperty(key, data, comments) {
 	}
 	const description = getComment(name, 'description', comments);
 	const placeholder = getComment(name, 'placeholder', comments);
+
 	// Check if the child has it's own comments, if so use them instead of the parents comments
 	if (
 		Object.keys(childProperties).length &&
