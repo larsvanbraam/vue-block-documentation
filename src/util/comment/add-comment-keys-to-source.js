@@ -10,15 +10,10 @@ function addKeysToProperties(properties, previousCommentKey) {
 		const hasComments = properties[Config.COMMENTS_KEY] !== void 0;
 		if (key !== Config.COMMENTS_KEY) {
 			let commentKey = key;
-			// console.log(Chalk.red('KEY: ' + key));
-			// console.log('do we need to restart the namespace?', hasComments)
-
 			// If we have a new comments key that means we reached a new file, so no more nesting!
 			if (!hasComments) {
 				commentKey = previousCommentKey ? previousCommentKey + '.' + key : key;
 			}
-			// console.log('namespace: ', commentKey);
-
 			// Add to the object
 			properties[key][Config.COMMENT_KEY] = commentKey;
 			// Check for child properties

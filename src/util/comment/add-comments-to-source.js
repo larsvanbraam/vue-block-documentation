@@ -7,20 +7,22 @@ const _ = require('lodash');
  * @param source
  * @returns {Promise}
  */
-module.exports = function parseComments(source) {
-	return new Promise((resolve, reject) => {
-		// Parse the file to get the comments
+module.exports = function addCommentsToSource(source) {
+	// Check if the file has the same line { style!
+	const found = source.match(/export default {/i);
+
+	if (found) {
 		const comments = commentParser(source, {
 			dotted_names: false,
 		});
 
 		// Modify the source to include the parsed comments so we can retrieve them later on
-		source = _.replace(
+		return Promise.resolve(_.replace(
 			source,
 			'export default {',
-			`export default {\n\t${Config.COMMENTS_KEY}: ${JSON.stringify(comments)},\n`);
-
-		// Return the modified source
-		resolve(source);
-	});
+			`export default {\n\t${Config.COMMENTS_KEY}: ${JSON.stringify(comments)},\n`)
+		);
+	} else {
+		return Promise.reject('Incorrect export default format, should be: "export default {"');
+	}
 };

@@ -1,14 +1,12 @@
 const fs = require('fs-extra');
-const _ = require('lodash');
 const path = require('path');
 const chalk = require('chalk');
 const progress = require('cli-progress');
-const runSeq = require('sequential-promise');
-
 const Config = require('./config/config');
 const VueType = require('./config/vue-type');
 const VueTypeLabel = require('./config/vue-type-label');
 
+const sequentialPromises = require('./util/sequential-promises');
 const transformSource = require('./util/transform-source');
 const createDirectory = require('./util/fs/create-directory');
 const parseDependencies = require('./util/parse-dependencies');
@@ -21,7 +19,6 @@ const generateExampleJSON = require('./util/generate-example-json');
 const getComment = require('./util/comment/get-comment');
 const addCommentKeysToSource = require('./util/comment/add-comment-keys-to-source');
 
-// const config = Config.getConfig();
 const output = {
 	blocks: [],
 	enums: [],
@@ -55,13 +52,12 @@ function parseBlockDirectory(blockDirectory, settings) {
 	.then(() => parseDependencies(sourceFile, sourcePath, tempPath))
 	// Read the temp file contents
 	.then(() => readFile(tempFile))
+	// Execute the source in a sandbox
+	.then(source => runSource(source, tempFile))
+	// Add the nested comment key to all the source so we can retrieve the comments later on!
+	.then(executedSource => addCommentKeysToSource(executedSource))
 	// Run the parsed temp file
-	.then((source) => {
-		// Execute the source in a sandbox
-		const executedSource = runSource(source, tempFile).default;
-		// Add the nested comment keys to all the keys in the executed source so we can retrieve the matching
-		// comment later on
-		addCommentKeysToSource(executedSource);
+	.then(executedSource => {
 		// Get the root level comments
 		let comments = executedSource[Config.COMMENTS_KEY] || [];
 		// Get the tags level
@@ -75,14 +71,19 @@ function parseBlockDirectory(blockDirectory, settings) {
 			properties: properties,
 			example: JSON.stringify({
 				id: blockDirectory,
-				data: generateExampleJSON(properties, {})
-			}, null, 4)
+				data: generateExampleJSON(properties, {}),
+			}, null, 4),
 		});
 
 		// Update the progress bar
 		if (Config.ENABLE_PROGRESS_BAR) {
 			progressBar.increment();
 		}
+	})
+	.catch(reason => {
+		progressBar.stop();
+		// Re-throw the error to notify about the failure
+		return Promise.reject(`${fileName} → ${reason}`);
 	});
 }
 
@@ -92,7 +93,6 @@ function parseBlockDirectory(blockDirectory, settings) {
  * @param parent
  */
 function parseProperties(properties, comments) {
-
 	return Object.keys(properties)
 	// Filter out the ignored properties
 	.filter((key, index) => {
@@ -147,7 +147,6 @@ function parseProperty(key, data, comments) {
 		name: key,
 		type: VueTypeLabel[type],
 		required: data.required || false,
-		defaultValue: typeof data.default === 'string' && data.default !== '' ? data.default : '-',
 		description: description ? description.description : '-',
 		placeholder: placeholder ? placeholder.description : '-',
 		properties: parseProperties(childProperties, comments)
@@ -176,8 +175,8 @@ module.exports = function generate(settings) {
 
 		// Create a _temp folder for outputting the generated parsed js files
 		return createDirectory(Config.OUTPUT_TEMP_FOLDER)
-		// Parse all the blocks
-		.then(() => runSeq(blockDirectories.map((directory, index) => () => parseBlockDirectory(directory, settings))))
+		.then(() => sequentialPromises(blockDirectories.map((directory, index) =>
+			() => parseBlockDirectory(directory, settings))))
 		// Create the documentation folder
 		.then(() => createDirectory(outputDirectory))
 		// Write the output json to the documentation folder
@@ -192,6 +191,6 @@ module.exports = function generate(settings) {
 		// Remove the temp folder
 		.then(() => fs.rmdir(Config.OUTPUT_TEMP_FOLDER));
 	} else {
-		return Promise.reject(`Oops! The provided input folder(${settings.input}) does not exist!`);
+		return Promise.reject(`The provided input folder(${settings.input}) does not exist!`);
 	}
 };

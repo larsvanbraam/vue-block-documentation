@@ -8,30 +8,32 @@ const chalk = require('chalk');
  * @returns {*}
  */
 module.exports = function runSource(source, scriptPath) {
-	const vm = new vm2.NodeVM({
-		require: {
-			external: true,
-		},
+	return new Promise((resolve, reject) => {
+		const vm = new vm2.NodeVM({
+			require: {
+				external: true,
+			},
+		});
+
+		let vmScript = source;
+		let compiledSource = null;
+
+		try {
+			vmScript = new vm2.VMScript(source);
+		}
+		catch (error) {
+			reject('Failed to compile script.');
+			return;
+		}
+
+		try {
+			compiledSource = vm.run(vmScript, scriptPath);
+		}
+		catch (error) {
+			reject('Failed to execute script.');
+			return;
+		}
+
+		resolve(compiledSource.default);
 	});
-
-	let vmScript = source;
-	let compiledSource = null;
-
-	try {
-		vmScript = new vm2.VMScript(source);
-	}
-	catch (error) {
-		console.log(chalk.red('Failed to compile script.'));
-		throw error;
-	}
-
-	try {
-		compiledSource = vm.run(vmScript, scriptPath);
-	}
-	catch (error) {
-		console.log(chalk.red('Failed to execute script.'));
-		throw error;
-	}
-
-	return compiledSource;
 };

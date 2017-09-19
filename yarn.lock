@@ -1046,10 +1046,6 @@ safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.1.tgz#893312af69b2123def71f57889001671eeb2c853"
 
-sequential-promise@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/sequential-promise/-/sequential-promise-2.0.1.tgz#2a071cf8ef7c7eecbb867bbe51eff28d367624ec"
-
 signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"

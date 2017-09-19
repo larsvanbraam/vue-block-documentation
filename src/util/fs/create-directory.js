@@ -7,6 +7,8 @@ const fs = require('fs-extra');
  */
 module.exports = function createDirectory(folder) {
 	return new Promise((resolve, reject) => {
-		fs.ensureDir(folder).then(resolve).catch((reason => reject('Unable to create folder')));
+		fs.ensureDir(folder)
+		.then(resolve)
+		.catch((reason => reject('Unable to create folder')));
 	});
 };

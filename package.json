@@ -36,7 +36,6 @@
 		"inquirer": "^3.2.3",
 		"lodash": "^4.17.4",
 		"mkdirp": "^0.5.1",
-		"sequential-promise": "^2.0.1",
 		"to-space-case": "^1.0.0",
 		"user-settings": "^0.1.5",
 		"vm2": "^3.5.0"

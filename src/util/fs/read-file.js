@@ -9,6 +9,6 @@ module.exports = function readFile(path) {
 	return new Promise((resolve, reject) => {
 		fs.readFile(path, { encoding: 'utf8' })
 		.then(content => resolve(content))
-		.catch(reason => reject(`Unable to read file, ${reason}`));
+		.catch(reason => reject(`File does not exist!`));
 	});
 };
