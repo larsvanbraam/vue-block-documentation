@@ -154,6 +154,16 @@ function parseProperty(key, data, comments) {
 }
 
 /**
+ * @description Remove the temp folder
+ */
+function removeTempFolder() {
+	// Empty the dir first
+	fs.emptyDirSync(Config.OUTPUT_TEMP_FOLDER);
+	// Remove the dir
+	fs.rmdir(Config.OUTPUT_TEMP_FOLDER);
+}
+
+/**
  * @description Method that actually generates the documentation
  * @param settings
  * @returns {Promise}
@@ -189,7 +199,13 @@ module.exports = function generate(settings) {
 		// Empty the temp folder
 		.then(() => fs.emptyDirSync(Config.OUTPUT_TEMP_FOLDER))
 		// Remove the temp folder
-		.then(() => fs.rmdir(Config.OUTPUT_TEMP_FOLDER));
+		.then(() => fs.rmdir(Config.OUTPUT_TEMP_FOLDER))
+		.catch(reason => {
+			// Catch failure and remove the temp data
+			removeTempFolder();
+			// Re-throw the error
+			return Promise.reject(reason);
+		})
 	} else {
 		return Promise.reject(`The provided input folder(${settings.input}) does not exist!`);
 	}

@@ -22,7 +22,7 @@ module.exports = function runSource(source, scriptPath) {
 			vmScript = new vm2.VMScript(source);
 		}
 		catch (error) {
-			reject('Failed to compile script.');
+			reject(`Failed to compile script. ${error}`);
 			return;
 		}
 
@@ -30,7 +30,7 @@ module.exports = function runSource(source, scriptPath) {
 			compiledSource = vm.run(vmScript, scriptPath);
 		}
 		catch (error) {
-			reject('Failed to execute script.');
+			reject(`Failed to execute script. ${error}`);
 			return;
 		}
 
