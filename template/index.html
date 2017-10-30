@@ -86,12 +86,15 @@
 		data: () => {
 			return {
 				skippedCategories: ['placeholder', 'properties'],
+				categories: [
+					'name',
+					'type',
+					'required',
+					'description',
+					'placeholder',
+					'properties',
+				],
 			};
-		},
-		computed: {
-			categories() {
-				return this.properties.length ? Object.keys(this.properties[0]) : [];
-			},
 		},
 		template: `
 				<table class="table">
@@ -115,40 +118,40 @@
 						</tr>
 					</tbody>
 				</table>
-			`
+			`,
 	});
 
 	const app = new Vue({
-		el: '#app',
-		data: {
-			sections: [],
-		},
-		methods: {
-			getData() {
-				return axios.get('./data.json').then(result => result.data);
-			},
-			storeSectionData(data) {
-				Object.keys(data).forEach(key => {
-					if (data[key].length) {
-						this.sections.push({
-							id: key,
-							data: data[key],
+							el: '#app',
+							data: {
+								sections: [],
+							},
+							methods: {
+								getData() {
+									return axios.get('./data.json').then(result => result.data);
+								},
+								storeSectionData(data) {
+									Object.keys(data).forEach(key => {
+										if (data[key].length) {
+											this.sections.push({
+																   id: key,
+																   data: data[key],
+															   });
+										}
+									});
+								},
+								applyHighlight() {
+									this.$el.querySelectorAll('.json-example').forEach(block => {
+										hljs.highlightBlock(block);
+									});
+								},
+							},
+							mounted() {
+								this.getData()
+								.then(result => this.storeSectionData(result))
+								.then(() => this.applyHighlight());
+							},
 						});
-					}
-				});
-			},
-			applyHighlight() {
-				this.$el.querySelectorAll('.json-example').forEach(block => {
-					hljs.highlightBlock(block);
-				});
-			},
-		},
-		mounted() {
-			this.getData()
-			.then(result => this.storeSectionData(result))
-			.then(() => this.applyHighlight());
-		}
-	});
 </script>
 </body>
 

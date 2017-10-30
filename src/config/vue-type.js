@@ -1,7 +1,7 @@
 module.exports = Object.freeze({
 	ANY: 'any',
 	ARRAY: 'array',
-	BOOL: 'bool',
+	BOOL: 'boolean',
 	FUNC: 'func',
 	NUMBER: 'number',
 	INTEGER: 'integer',

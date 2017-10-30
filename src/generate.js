@@ -60,10 +60,13 @@ function parseBlockDirectory(blockDirectory, settings) {
 	.then(executedSource => {
 		// Get the root level comments
 		let comments = executedSource[Config.COMMENTS_KEY] || [];
+
 		// Get the tags level
 		comments = comments.length ? comments[0].tags : [];
+
 		// Parse all the properties
 		const properties = parseProperties(executedSource, comments);
+
 
 		// Start the parsing of the properties
 		output.blocks.push({
@@ -119,8 +122,8 @@ function parseProperty(key, data, comments) {
 
 	switch (type) {
 		case VueType.SHAPE:
-		case VueType.OBJECT_OF:
 		case VueType.ARRAY_OF:
+		case VueType.OBJECT_OF:
 			childProperties = data.properties;
 			break;
 		case VueType.ONE_OF:
@@ -148,7 +151,7 @@ function parseProperty(key, data, comments) {
 		type: VueTypeLabel[type],
 		required: data.required || false,
 		description: description ? description.description : '-',
-		placeholder: placeholder ? placeholder.description : '-',
+		placeholder: placeholder ? placeholder.placeholder : null,
 		properties: parseProperties(childProperties, comments)
 	};
 }

@@ -14,7 +14,7 @@ module.exports = function generateExampleJSON(properties, root) {
 			case VueTypesLabel[VueType.STRING]:
 				root[property.name] = property.placeholder || Config.PLACEHOLDER_STRING;
 				break;
-			case VueTypesLabel[VueType.BOOLEAN]:
+			case VueTypesLabel[VueType.BOOL]:
 				root[property.name] = property.placeholder || Config.PLACEHOLDER_BOOLEAN;
 				break;
 			case VueTypesLabel[VueType.NUMBER]:
