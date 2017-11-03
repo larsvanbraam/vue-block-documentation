@@ -21,4 +21,7 @@ if (program.destination) {
 // Actually generate the docs
 generate(Settings.getSettings(settingsOverrides))
 .then(() => console.log(chalk.green('Done!')))
-.catch(reason => console.log(chalk.red(`Failed to generate documentation: \n- ${reason}`)));
+.catch(reason => {
+	console.log(chalk.red(`Failed to generate documentation: \n- ${reason}`))
+	process.exit();
+});

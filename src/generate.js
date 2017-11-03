@@ -42,6 +42,8 @@ function parseBlockDirectory(blockDirectory, settings) {
 	const tempPath = `${path.resolve(Config.OUTPUT_TEMP_FOLDER, settings.input)}/${blockDirectory}`;
 	const tempFile = `${tempPath}/${fileName}`;
 
+	// if(blockDirectory !== 'ArticleTeaser') throw new Error('stop');
+
 	// Load the root file
 	return readFile(sourceFile)
 	// Add the inline comments to the source so we can use them later on
@@ -66,7 +68,6 @@ function parseBlockDirectory(blockDirectory, settings) {
 
 		// Parse all the properties
 		const properties = parseProperties(executedSource, comments);
-
 
 		// Start the parsing of the properties
 		output.blocks.push({
@@ -121,8 +122,15 @@ function parseProperty(key, data, comments) {
 	let childProperties = {};
 
 	switch (type) {
-		case VueType.SHAPE:
 		case VueType.ARRAY_OF:
+			if(data.properties.properties) {
+				delete data.properties.properties[Config.COMMENT_KEY];
+				childProperties = data.properties.properties
+			}else {
+				childProperties = data.properties;
+			}
+			break;
+		case VueType.SHAPE:
 		case VueType.OBJECT_OF:
 			childProperties = data.properties;
 			break;
@@ -134,6 +142,7 @@ function parseProperty(key, data, comments) {
 			});
 			break;
 	}
+
 	const description = getComment(name, 'description', comments);
 	const placeholder = getComment(name, 'placeholder', comments);
 
