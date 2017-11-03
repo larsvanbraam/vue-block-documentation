@@ -126,7 +126,7 @@ function parseProperty(key, data, comments) {
 			if(data.properties.properties) {
 				delete data.properties.properties[Config.COMMENT_KEY];
 				childProperties = data.properties.properties
-			}else {
+			} else {
 				childProperties = data.properties;
 			}
 			break;
