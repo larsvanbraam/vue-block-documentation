@@ -151,7 +151,7 @@ function parseProperty(key, data, comments) {
 		type: VueTypeLabel[type],
 		required: data.required || false,
 		description: description ? description.description : '-',
-		placeholder: placeholder ? placeholder.placeholder : null,
+		placeholder: placeholder ? placeholder.description : null,
 		properties: parseProperties(childProperties, comments)
 	};
 }
