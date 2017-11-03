@@ -31,6 +31,10 @@
 			position: relative;
 		}
 
+		.toggle-panel {
+			cursor: pointer;
+		}
+
 		.icon {
 			width: 20px;
 			height: 20px;
@@ -96,7 +100,7 @@
 				<h4 class="capitalize" :id="section.id">{{ section.id }}</h4>
 				<div class="block" v-for="block in section.data">
 					<div class="panel panel-default">
-						<div class="panel-heading" @click="handleBlockClick">
+						<div class="panel-heading toggle-panel" @click="handleBlockClick">
 							<h3 class="panel-title" :id="block.name">{{ block.name }}</h3>
 							<span class="icon glyphicon glyphicon-plus "></span>
 							<span class="icon glyphicon glyphicon-minus "></span>
