@@ -29,7 +29,14 @@ module.exports = function generateExampleJSON(properties, root) {
 				root[property.name].push(generateExampleJSON(property.properties, {}));
 				break;
 			case VueTypesLabel[VueType.ONE_OF]:
-				root[property.name] = property.placeholder || property.properties[0].name;
+				if (property.placeholder) {
+					root[property.name] = property.placeholder;
+				} else {
+					const propertyData = property.properties[0];
+					const value = propertyData.name;
+					const type = propertyData.type;
+					root[property.name] = type === VueType.NUMBER ? parseInt(value) : value;
+				}
 				break;
 			default:
 				root[property.name] = 'TODO: ' + property.type;
