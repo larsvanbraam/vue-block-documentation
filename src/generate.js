@@ -1,6 +1,5 @@
 const fs = require('fs-extra');
 const path = require('path');
-const chalk = require('chalk');
 const progress = require('cli-progress');
 const Config = require('./config/config');
 const VueType = require('./config/vue-type');
@@ -24,10 +23,12 @@ const output = {
 	enums: [],
 };
 
-let progressBar = new progress.Bar({
-	format: 'Parsing blocks: [{bar}] {percentage}% | {value}/{total}',
-	stopOnComplete: true,
-});
+let progressBar = new progress.Bar(
+	{
+		format: 'Parsing blocks: [{bar}] {percentage}% | {value}/{total}',
+		stopOnComplete: true,
+	},
+);
 
 /**
  * @description Parse the provided block directory
@@ -42,7 +43,9 @@ function parseBlockDirectory(blockDirectory, settings) {
 	const tempPath = `${path.resolve(Config.OUTPUT_TEMP_FOLDER, settings.input)}/${blockDirectory}`;
 	const tempFile = `${tempPath}/${fileName}`;
 
-	// if(blockDirectory !== 'ArticleTeaser') throw new Error('stop');
+	// if (blockDirectory !== 'FindYourAudience') {
+	// 	return Promise.resolve();
+	// }
 
 	// Load the root file
 	return readFile(sourceFile)
@@ -70,14 +73,17 @@ function parseBlockDirectory(blockDirectory, settings) {
 		const properties = parseProperties(executedSource, comments);
 
 		// Start the parsing of the properties
-		output.blocks.push({
-			name: blockDirectory,
-			properties: properties,
-			example: JSON.stringify({
-				id: blockDirectory,
-				data: generateExampleJSON(properties, {}),
-			}, null, 4),
-		});
+		output.blocks.push(
+			{
+				name: blockDirectory,
+				properties: properties,
+				example: JSON.stringify(
+					{
+						id: blockDirectory,
+						data: generateExampleJSON(properties, {}),
+					}, null, 4),
+			},
+		);
 
 		// Update the progress bar
 		if (Config.ENABLE_PROGRESS_BAR) {
@@ -118,18 +124,10 @@ function parseProperties(properties, comments) {
  */
 function parseProperty(key, data, comments) {
 	const type = data[Config.VUE_TYPES_NAME_KEY];
-	const name = data[Config.COMMENT_KEY];
+	let name = data[Config.COMMENT_KEY];
 	let childProperties = {};
-
 	switch (type) {
 		case VueType.ARRAY_OF:
-			if(data.properties.properties) {
-				delete data.properties.properties[Config.COMMENT_KEY];
-				childProperties = data.properties.properties
-			} else {
-				childProperties = data.properties;
-			}
-			break;
 		case VueType.SHAPE:
 		case VueType.OBJECT_OF:
 			childProperties = data.properties;
@@ -161,7 +159,7 @@ function parseProperty(key, data, comments) {
 		required: data.required || false,
 		description: description ? description.description : '-',
 		placeholder: placeholder ? placeholder.description : null,
-		properties: parseProperties(childProperties, comments)
+		properties: parseProperties(childProperties, comments),
 	};
 }
 
@@ -198,7 +196,7 @@ module.exports = function generate(settings) {
 		// Create a _temp folder for outputting the generated parsed js files
 		return createDirectory(Config.OUTPUT_TEMP_FOLDER)
 		.then(() => sequentialPromises(blockDirectories.map((directory, index) =>
-			() => parseBlockDirectory(directory, settings))))
+																() => parseBlockDirectory(directory, settings))))
 		// Create the documentation folder
 		.then(() => createDirectory(outputDirectory))
 		// Write the output json to the documentation folder
@@ -206,7 +204,7 @@ module.exports = function generate(settings) {
 		// Copy the output template to the documentation folder
 		.then(() => fs.copy(
 			`${templateDirectory}/${Config.OUTPUT_INDEX_FILE}`,
-			`${outputDirectory}/${Config.OUTPUT_INDEX_FILE}`
+			`${outputDirectory}/${Config.OUTPUT_INDEX_FILE}`,
 		))
 		// Empty the temp folder
 		.then(() => fs.emptyDirSync(Config.OUTPUT_TEMP_FOLDER))
@@ -217,7 +215,7 @@ module.exports = function generate(settings) {
 			removeTempFolder();
 			// Re-throw the error
 			return Promise.reject(reason);
-		})
+		});
 	} else {
 		return Promise.reject(`The provided input folder(${settings.input}) does not exist!`);
 	}
