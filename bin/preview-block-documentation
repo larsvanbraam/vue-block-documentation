@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+const chalk = require('chalk');
+const fs = require('fs-extra');
+const serve = require('serve');
+const detectPort = require('detect-port');
+const Settings = require('../src/settings');
+
+// Find an available port
+detectPort().then((port) => {
+	// Get the output path from the settings file
+	const outputPath = Settings.getSettings().output;
+
+	// Check if the output folder exists
+	if (fs.existsSync(outputPath)) {
+		serve(outputPath, {
+			port,
+			open: true,
+		});
+	} else {
+		console.log(chalk.red(`Unable to preview the docs because the output path (${outputPath}) does not exist!`));
+	}
+});
+

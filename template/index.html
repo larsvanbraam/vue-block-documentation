@@ -35,6 +35,14 @@
 			cursor: pointer;
 		}
 
+		.alert-info {
+			margin: 36px 0;
+		}
+
+		.alert-link {
+			cursor: pointer;
+		}
+
 		.icon {
 			width: 20px;
 			height: 20px;
@@ -86,8 +94,8 @@
 				<div class="list-group-item active">
 					<span class="badge">{{ section.data.length }}</span>
 					<span class="list-group-item-heading">
-							<h5 class="list-group-item-heading capitalize">{{ section.id }}</h5>
-						</span>
+						<h5 class="list-group-item-heading capitalize">{{ section.id }}</h5>
+					</span>
 				</div>
 				<a v-for="data in section.data" :href="`#${data.name}`" class="list-group-item overflow-ellipsis">{{
 					data.name }}</a>
@@ -96,11 +104,16 @@
 		</div>
 		<!-- Column with all the data -->
 		<div class="col-md-9">
+			<div class="alert alert-info">
+				<strong>Heads up!</strong>
+				Want to unfold all blocks? <a @click="unfoldAll" class="alert-link">Click here!</a>
+			</div>
 			<div v-for="section in sections">
 				<h4 class="capitalize" :id="section.id">{{ section.id }}</h4>
-				<div class="block" v-for="block in section.data">
+				<div class="block" v-for="block in section.data"
+				     :class="[{'is-active': allBlocksUnfolded || unfoldedBlocks.indexOf(block.name) > -1}]">
 					<div class="panel panel-default">
-						<div class="panel-heading toggle-panel" @click="handleBlockClick">
+						<div class="panel-heading toggle-panel" @click="handleBlockClick(block.name)">
 							<h3 class="panel-title" :id="block.name">{{ block.name }}</h3>
 							<span class="icon glyphicon glyphicon-plus "></span>
 							<span class="icon glyphicon glyphicon-minus "></span>
@@ -121,6 +134,7 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/vue/2.4.4/vue.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/smooth-scroll/12.1.5/js/smooth-scroll.js"></script>
 <script>
 	Vue.component('data-table', {
 		props: ['properties'],
@@ -154,7 +168,7 @@
 						</tr>
 						<tr v-if="property.properties.length">
 							<td :colspan="categories.length - skippedCategories.length">
-								<data-table :properties="property.properties"></data-table>
+								<data-table :properties="property.properties"/>
 							</td>
 						</tr>
 					</tbody>
@@ -167,6 +181,8 @@
 			el: '#app',
 			data: {
 				sections: [],
+				unfoldedBlocks: [],
+				allBlocksUnfolded: false,
 			},
 			methods: {
 				getData() {
@@ -175,30 +191,44 @@
 				storeSectionData(data) {
 					Object.keys(data).forEach(key => {
 						if (data[key].length) {
-							this.sections.push({
-												   id: key,
-												   data: data[key],
-											   });
+							this.sections.push(
+								{
+									id: key,
+									data: data[key],
+								},
+							);
 						}
 					});
 				},
-				handleBlockClick(event) {
-					event.currentTarget.parentElement.parentElement.classList.toggle('is-active');
+				unfoldAll() {
+					this.allBlocksUnfolded = true;
+				},
+				handleBlockClick(block) {
+					this.allBlocksUnfolded = false;
+
+					const index = this.unfoldedBlocks.indexOf(block);
+					if (index > -1) {
+						this.unfoldedBlocks.splice(index, 1);
+					} else {
+						this.unfoldedBlocks.push(block);
+					}
 				},
 				applyHighlight() {
 					this.$el.querySelectorAll('.json-example').forEach(block => {
 						hljs.highlightBlock(block);
 					});
 				},
+				enableSmoothScroll() {
+					new SmoothScroll('a[href*="#"]');
+				},
 			},
 			mounted() {
 				this.getData()
 				.then(result => this.storeSectionData(result))
-				.then(() => this.applyHighlight());
+				.then(this.applyHighlight)
+				.then(this.enableSmoothScroll);
 			},
 		});
 </script>
 </body>
-
-
 </html>

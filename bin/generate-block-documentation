@@ -20,7 +20,10 @@ if (program.destination) {
 }
 // Actually generate the docs
 generate(Settings.getSettings(settingsOverrides))
-.then(() => console.log(chalk.green('Done!')))
+.then(() => {
+ 	console.log(chalk.green('Successfully generated the documentation!'));
+	console.log(chalk.blue('You can preview your docs by running:'), chalk.blue.bold('preview-block-documentation'));
+})
 .catch(reason => {
 	console.log(chalk.red(`Failed to generate documentation: \n- ${reason}`))
 	process.exit();
