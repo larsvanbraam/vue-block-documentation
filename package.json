@@ -1,49 +1,46 @@
 {
-	"name": "vue-block-documentation",
-	"version": "0.5.0",
-	"description": "Automatically generate API documentation for blocks.",
-	"preferGlobal": true,
-	"bin": {
-		"init-block-documentation": "bin/init-block-documentation",
-		"generate-block-documentation": "bin/generate-block-documentation",
-		"preview-block-documentation": "bin/preview-block-documentation"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/larsvanbraam/vue-block-documentation"
-	},
-	"keywords": [
-		"vue",
-		"vue-block-system",
-		"javascript",
-		"api-documentation",
-		"documentation"
-	],
-	"author": "larsvanbraam@gmail.com <larsvanbraam@gmail.com> (https://github.com/larsvanbraam)",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/larsvanbraam/vue-block-documentation/issues"
-	},
-	"homepage": "https://github.com/larsvanbraam/vue-block-documentation#readme",
-	"dependencies": {
-		"babel-core": "^6.26.0",
-		"babel-preset-es2015": "^6.24.1",
-		"chalk": "^2.1.0",
-		"cli-progress": "^1.5.1",
-		"commander": "^2.11.0",
-		"comment-parser": "^0.3.2",
-		"detect-port": "^1.2.2",
-		"find-imports": "^0.5.2",
-		"fs-extra": "^4.0.1",
-		"inquirer": "^3.2.3",
-		"lodash": "^4.17.4",
-		"mkdirp": "^0.5.1",
-		"serve": "^6.4.1",
-		"to-space-case": "^1.0.0",
-		"user-settings": "^0.1.5",
-		"vm2": "^3.5.0"
-	},
-	"engines": {
-		"node": ">=6.0.0"
-	}
+  "name": "vue-block-documentation",
+  "version": "0.5.0",
+  "description": "Automatically generate API documentation for blocks.",
+  "preferGlobal": true,
+  "bin": {
+    "init-block-documentation": "bin/init-block-documentation",
+    "generate-block-documentation": "bin/generate-block-documentation",
+    "preview-block-documentation": "bin/preview-block-documentation"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/larsvanbraam/vue-block-documentation"
+  },
+  "keywords": ["vue", "vue-block-system", "javascript", "api-documentation", "documentation"],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "larsvanbraam@gmail.com <larsvanbraam@gmail.com> (https://github.com/larsvanbraam)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/larsvanbraam/vue-block-documentation/issues"
+  },
+  "homepage": "https://github.com/larsvanbraam/vue-block-documentation#readme",
+  "dependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "chalk": "^2.1.0",
+    "cli-progress": "^1.5.1",
+    "commander": "^2.11.0",
+    "comment-parser": "^0.3.2",
+    "detect-port": "^1.2.2",
+    "find-imports": "^0.5.2",
+    "fs-extra": "^4.0.1",
+    "inquirer": "^3.2.3",
+    "lodash": "^4.17.4",
+    "mkdirp": "^0.5.1",
+    "serve": "^6.4.1",
+    "to-space-case": "^1.0.0",
+    "user-settings": "^0.1.5",
+    "vm2": "^3.5.0"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  }
 }

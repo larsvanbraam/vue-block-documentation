@@ -2,7 +2,7 @@ language: node_js
 
 node_js:
   - 'stable'
-  - '6'
+  - '8'
 
 sudo: false
 
@@ -16,5 +16,5 @@ deploy:
       secure: "Mdgsao0oVA6HnQiOYnVMtVxiTh3Fk2FriSbLcy68mvMiDEm5A2e4ic/gt8BCyYVmKMnerJ6yv7SSz7guWB43sh3wG8EMRoGVa4z+01FwLmSwUn3ndEiAI11YnGrGYYdcG93VVxARrIp8hONyMROKzGx24nNjrbJwX0Oh+0zTA63XAy1eu9PIf6S0dURcGu9PzgfEFuiUy/3KRDUFkWfBwmNhS95wmnr2nG6o3U2eOuveYyyf08FDbqZGu1OysRMX2C4cuLRxfwLno82G8MziDkJJ9GobWktPO7abyphwejojBp6Pz2AloZwlxHPHKoqNwZlOZDwBhdJlSHSm/8KOOxmQokuV/xkteeHXrwZ6bFX9BC8qiOdpxgPNjsCmBc52bUI2IHLhwE4fzcGlT+OOAgnWmxOSxjUOSXeb/Zo0/0G+1Wlu8Ic5aDDxHCxdnQ65Tc85sc2FzotvBqPRHOaHyzm5LgqulQv/hurs1pnag3PDxOEejpTGmqxZRE+3FPsOtJ62mB9Z5MA+eKvVGvk75IBKtVIYhAFevdhrm/1HbhXFIvu929J22GQuB2ba7uYmgQMlpvjkriD58RuebKNWDGvEoSJfMeq5QJ6cMXEFRM+57wqwPVR+fGfGj9DZRNoGeWkR2NHKxgOuMOeqBMnOp4yTjL6GcWRTG7t90c3OKfM="
     on:
       tags: true
-      node: '6'
+      node: '8'
     skip_cleanup: true
