@@ -1,6 +1,6 @@
 {
   "name": "vue-block-documentation",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Automatically generate API documentation for blocks.",
   "preferGlobal": true,
   "bin": {
@@ -12,7 +12,13 @@
     "type": "git",
     "url": "https://github.com/larsvanbraam/vue-block-documentation"
   },
-  "keywords": ["vue", "vue-block-system", "javascript", "api-documentation", "documentation"],
+  "keywords": [
+    "vue",
+    "vue-block-system",
+    "javascript",
+    "api-documentation",
+    "documentation"
+  ],
   "scripts": {
     "test": "echo \"Warn: no test specified\""
   },
