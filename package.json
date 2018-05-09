@@ -14,7 +14,7 @@
   },
   "keywords": ["vue", "vue-block-system", "javascript", "api-documentation", "documentation"],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Warn: no test specified\""
   },
   "author": "larsvanbraam@gmail.com <larsvanbraam@gmail.com> (https://github.com/larsvanbraam)",
   "license": "MIT",
