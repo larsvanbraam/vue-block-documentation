@@ -5,5 +5,5 @@
  * @returns {T|*}
  */
 module.exports = function getComment(name, type, comments) {
-	return comments.find(comment => comment.name === name && comment.type === type);
+  return comments.find(comment => comment.name === name && comment.type === type);
 };

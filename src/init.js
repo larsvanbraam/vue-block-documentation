@@ -4,18 +4,16 @@ const Questions = require('./questions');
 const chalk = require('chalk');
 
 module.exports = function init() {
-	let settings = Settings.getSettings({}, false, true);
+  let settings = Settings.getSettings({}, false, true);
 
-	const questions = Questions.getSettingQuestions(settings);
+  const questions = Questions.getSettingQuestions(settings);
 
-	inquirer.prompt(questions).then((answers) => {
-		Settings.setLocalSettings(answers);
+  inquirer.prompt(questions).then(answers => {
+    Settings.setLocalSettings(answers);
 
-		console.log();
-		console.log(chalk.green('Local settings:'));
+    console.log();
+    console.log(chalk.green('Local settings:'));
 
-		Settings.logSettings(Settings.getLocalSettings());
-	});
+    Settings.logSettings(Settings.getLocalSettings());
+  });
 };
-
-

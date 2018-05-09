@@ -7,24 +7,27 @@ const path = require('path');
 const Settings = require('../src/settings');
 
 program
-.option('-i, --input <input>', 'Override the input directory')
-.option('-o, --output <output>', 'Override the output directory')
-.parse(process.argv);
+  .option('-i, --input <input>', 'Override the input directory')
+  .option('-o, --output <output>', 'Override the output directory')
+  .parse(process.argv);
 
 // Any overwritten settings
 let settingsOverrides = {};
 
 // Set the overwritten settings
 if (program.destination) {
-	settingsOverrides['destination'] = program.destination;
+  settingsOverrides['destination'] = program.destination;
 }
 // Actually generate the docs
 generate(Settings.getSettings(settingsOverrides))
-.then(() => {
- 	console.log(chalk.green('Successfully generated the documentation!'));
-	console.log(chalk.blue('You can preview your docs by running:'), chalk.blue.bold('preview-block-documentation'));
-})
-.catch(reason => {
-	console.log(chalk.red(`Failed to generate documentation: \n- ${reason}`))
-	process.exit();
-});
+  .then(() => {
+    console.log(chalk.green('Successfully generated the documentation!'));
+    console.log(
+      chalk.blue('You can preview your docs by running:'),
+      chalk.blue.bold('preview-block-documentation'),
+    );
+  })
+  .catch(reason => {
+    console.log(chalk.red(`Failed to generate documentation: \n- ${reason}`));
+    process.exit();
+  });

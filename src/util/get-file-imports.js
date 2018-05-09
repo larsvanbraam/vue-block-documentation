@@ -7,14 +7,14 @@ const findImports = require('find-imports');
  * @returns { Promise<T> }
  */
 module.exports = function getFileImports(file) {
-	return new Promise((resolve) => {
-		const imports = findImports(file, {
-			absoluteImports: true,
-			relativeImports: true,
-			packageImports: false,
-			flatten: true,
-		});
+  return new Promise(resolve => {
+    const imports = findImports(file, {
+      absoluteImports: true,
+      relativeImports: true,
+      packageImports: false,
+      flatten: true,
+    });
 
-		resolve(imports);
-	});
+    resolve(imports);
+  });
 };

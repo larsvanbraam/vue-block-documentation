@@ -6,18 +6,21 @@ const detectPort = require('detect-port');
 const Settings = require('../src/settings');
 
 // Find an available port
-detectPort().then((port) => {
-	// Get the output path from the settings file
-	const outputPath = Settings.getSettings().output;
+detectPort().then(port => {
+  // Get the output path from the settings file
+  const outputPath = Settings.getSettings().output;
 
-	// Check if the output folder exists
-	if (fs.existsSync(outputPath)) {
-		serve(outputPath, {
-			port,
-			open: true,
-		});
-	} else {
-		console.log(chalk.red(`Unable to preview the docs because the output path (${outputPath}) does not exist!`));
-	}
+  // Check if the output folder exists
+  if (fs.existsSync(outputPath)) {
+    serve(outputPath, {
+      port,
+      open: true,
+    });
+  } else {
+    console.log(
+      chalk.red(
+        `Unable to preview the docs because the output path (${outputPath}) does not exist!`,
+      ),
+    );
+  }
 });
-

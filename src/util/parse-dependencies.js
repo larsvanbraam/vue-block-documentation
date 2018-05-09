@@ -16,33 +16,36 @@ const sequentialPromises = require('./sequential-promises');
  * @returns {Promise}
  */
 module.exports = function parseDependencies(file, sourcePath, tempPath) {
-	// Get the imports for the current file
-	return getFileImports(file).then((fileImports) => {
-		// Loop through all the dependencies
-		return sequentialPromises(fileImports.map(fileImport =>
-			() => {
-				// Get the full paths and the temp path of the source files
-				const fileImportFullPath = path.resolve(sourcePath, `${fileImport}.js`);
-				const fileImportTempPath = path.resolve(tempPath, `${fileImport}.js`);
-				// Get the full path and the temp path of the dependency file
-				const dependencySourcePath = stripFileFromPath(fileImportFullPath);
-				const dependencyTempPath = stripFileFromPath(fileImportTempPath);
-				// parsing files that already exist is a bit of overhead so skip them!
-				return readFile(fileImportTempPath)
-				// Run the parser for the imported file to find more dependencies
-				.catch(() => parseDependencies(fileImportFullPath, dependencySourcePath, dependencyTempPath))
-				// Read the file on the source
-				.then(() => readFile(fileImportFullPath))
-				// Add the comments to the source
-				.then(source => addCommentsToSource(source))
-				// Transform the source to ES2015
-				.then(source => transformSource(source))
-				// Write the parsed content to the temp folder
-				.then(source => writeFile(fileImportTempPath, source))
-				// Re-throw the error
-				.catch(reason => Promise.reject(`${fileImportFullPath.split('/').pop()} → ${reason}`));
-			})
-		);
-	});
+  // Get the imports for the current file
+  return getFileImports(file).then(fileImports => {
+    // Loop through all the dependencies
+    return sequentialPromises(
+      fileImports.map(fileImport => () => {
+        // Get the full paths and the temp path of the source files
+        const fileImportFullPath = path.resolve(sourcePath, `${fileImport}.js`);
+        const fileImportTempPath = path.resolve(tempPath, `${fileImport}.js`);
+        // Get the full path and the temp path of the dependency file
+        const dependencySourcePath = stripFileFromPath(fileImportFullPath);
+        const dependencyTempPath = stripFileFromPath(fileImportTempPath);
+        // parsing files that already exist is a bit of overhead so skip them!
+        return (
+          readFile(fileImportTempPath)
+            // Run the parser for the imported file to find more dependencies
+            .catch(() =>
+              parseDependencies(fileImportFullPath, dependencySourcePath, dependencyTempPath),
+            )
+            // Read the file on the source
+            .then(() => readFile(fileImportFullPath))
+            // Add the comments to the source
+            .then(source => addCommentsToSource(source))
+            // Transform the source to ES2015
+            .then(source => transformSource(source))
+            // Write the parsed content to the temp folder
+            .then(source => writeFile(fileImportTempPath, source))
+            // Re-throw the error
+            .catch(reason => Promise.reject(`${fileImportFullPath.split('/').pop()} → ${reason}`))
+        );
+      }),
+    );
+  });
 };
-

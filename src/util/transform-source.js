@@ -7,13 +7,13 @@ const proxySourceMethods = require('./proxy-source-methods');
  * @param inputSource
  */
 module.exports = function transformSource(inputSource) {
-	// Apply the proxy methods to the input source
-	const source = proxySourceMethods(inputSource);
+  // Apply the proxy methods to the input source
+  const source = proxySourceMethods(inputSource);
 
-	// use babel to transform the source
-	return babel.transform(source, {
-		ast: false,
-		comments: false,
-		presets: [es2015],
-	}).code;
+  // use babel to transform the source
+  return babel.transform(source, {
+    ast: false,
+    comments: false,
+    presets: [es2015],
+  }).code;
 };
