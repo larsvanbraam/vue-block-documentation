@@ -45,6 +45,14 @@ function parseBlockDirectory(blockDirectory, settings, subDirectory) {
   )}/${subDirectoryPath}${blockDirectory}`;
   const tempFile = `${tempPath}/${fileName}`;
 
+  if (!fs.existsSync(sourceFile)) {
+    if (Config.ENABLE_PROGRESS_BAR) {
+      progressBar.increment();
+    }
+
+    return Promise.resolve();
+  }
+
   // Load the root file
   return (
     readFile(sourceFile)
