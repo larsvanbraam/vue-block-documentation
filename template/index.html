@@ -77,6 +77,35 @@
 			text-overflow: ellipsis;
 		}
 
+		.screenshot {
+			display: block;
+			position: relative;
+			width: 100%;
+		}
+
+		.screenshot:before {
+			display: block;
+			content: '';
+			padding-top: 43.75%;
+			position: relative;
+		}
+
+		.screenshot img {
+			top: 0;
+			left:0 ;
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+		}
+
+		.screenshot .label {
+			position: absolute;
+			left: 20px;
+			bottom: 20px;
+			margin: 0;
+		}
+
 		.sticky {
 			position: sticky;
 			top: 0;
@@ -89,7 +118,7 @@
 	<div class="row">
 		<!-- Column with the navigation -->
 		<div class="col-md-3 hidden-xs hidden-sm sticky">
-			<h4 class="capitalize">Documentation</h4>
+			<h4 class="capitalize">Documentation <small>v1.0.1</small></h4>
 			<div class="list-group" v-for="section in sections">
 				<div class="list-group-item active">
 					<span class="badge">{{ section.data.length }}</span>
@@ -104,21 +133,30 @@
 		</div>
 		<!-- Column with all the data -->
 		<div class="col-md-9">
-			<div class="alert alert-info">
+			<div class="alert alert-success">
 				<strong>Heads up!</strong>
 				Want to unfold all blocks? <a @click="unfoldAll" class="alert-link">Click here!</a>
 			</div>
 			<div v-for="section in sections">
 				<h4 class="capitalize" :id="section.id">{{ section.id }}</h4>
 				<div class="block" v-for="block in section.data"
-				     :class="[{'is-active': allBlocksUnfolded || unfoldedBlocks.indexOf(block.name) > -1}]">
+					 :class="[{'is-active': allBlocksUnfolded || unfoldedBlocks.indexOf(block.name) > -1}]">
 					<div class="panel panel-default">
 						<div class="panel-heading toggle-panel" @click="handleBlockClick(block.name)">
 							<h3 class="panel-title" :id="block.name">{{ block.name }}</h3>
 							<span class="icon glyphicon glyphicon-plus "></span>
 							<span class="icon glyphicon glyphicon-minus "></span>
 						</div>
+						<div class="panel-body panel-responsive">
+							<picture class="well screenshot">
+								<img :src="`./screenshots/${block.name}.png`">
+								<span class="label label-info" @click="handleAlertClick">
+									Missing screenshot? Add <i>{{block.name}}.png</i> to the <i>./screenshot</i> folder
+								</span>
+							</picture>
+						</div>
 						<div class="panel-body table-responsive">
+							<h5>Data description</h5>
 							<data-table :properties="block.properties"></data-table>
 						</div>
 						<div class="panel-body panel-responsive" v-if="block.example">
@@ -136,22 +174,22 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/smooth-scroll/12.1.5/js/smooth-scroll.js"></script>
 <script>
-	Vue.component('data-table', {
-		props: ['properties'],
-		data: () => {
-			return {
-				skippedCategories: ['placeholder', 'properties'],
-				categories: [
-					'name',
-					'type',
-					'required',
-					'description',
-					'placeholder',
-					'properties',
-				],
-			};
-		},
-		template: `
+    Vue.component('data-table', {
+        props: ['properties'],
+        data: () => {
+            return {
+                skippedCategories: ['placeholder', 'properties'],
+                categories: [
+                    'name',
+                    'type',
+                    'required',
+                    'description',
+                    'placeholder',
+                    'properties',
+                ],
+            };
+        },
+        template: `
 				<table class="table">
 					<thead>
 						<tr>
@@ -174,61 +212,64 @@
 					</tbody>
 				</table>
 			`,
-	});
+    });
 
-	const app = new Vue(
-		{
-			el: '#app',
-			data: {
-				sections: [],
-				unfoldedBlocks: [],
-				allBlocksUnfolded: false,
-			},
-			methods: {
-				getData() {
-					return axios.get('./data.json').then(result => result.data);
-				},
-				storeSectionData(data) {
-					Object.keys(data).forEach(key => {
-						if (data[key].length) {
-							this.sections.push(
-								{
-									id: key,
-									data: data[key],
-								},
-							);
-						}
-					});
-				},
-				unfoldAll() {
-					this.allBlocksUnfolded = true;
-				},
-				handleBlockClick(block) {
-					this.allBlocksUnfolded = false;
+    const app = new Vue(
+            {
+                el: '#app',
+                data: {
+                    sections: [],
+                    unfoldedBlocks: [],
+                    allBlocksUnfolded: false,
+                },
+                methods: {
+                    getData() {
+                        return axios.get('./data.json').then(result => result.data);
+                    },
+                    storeSectionData(data) {
+                        Object.keys(data).forEach(key => {
+                            if (data[key].length) {
+                                this.sections.push(
+                                        {
+                                            id: key,
+                                            data: data[key],
+                                        },
+                                );
+                            }
+                        });
+                    },
+                    unfoldAll() {
+                        this.allBlocksUnfolded = true;
+                    },
+                    handleBlockClick(block) {
+                        this.allBlocksUnfolded = false;
 
-					const index = this.unfoldedBlocks.indexOf(block);
-					if (index > -1) {
-						this.unfoldedBlocks.splice(index, 1);
-					} else {
-						this.unfoldedBlocks.push(block);
-					}
-				},
-				applyHighlight() {
-					this.$el.querySelectorAll('.json-example').forEach(block => {
-						hljs.highlightBlock(block);
-					});
-				},
-				enableSmoothScroll() {
-					new SmoothScroll('a[href*="#"]');
-				},
-			},
-			mounted() {
-				this.getData()
-				.then(result => this.storeSectionData(result))
-				.then(this.applyHighlight)
-				.then(this.enableSmoothScroll);
-			},
-		});
+                        const index = this.unfoldedBlocks.indexOf(block);
+                        if (index > -1) {
+                            this.unfoldedBlocks.splice(index, 1);
+                        } else {
+                            this.unfoldedBlocks.push(block);
+                        }
+                    },
+                    handleAlertClick(event) {
+                        event.currentTarget.style.display = 'none';
+                    },
+                    applyHighlight() {
+                        this.$el.querySelectorAll('.json-example').forEach(block => {
+                            hljs.highlightBlock(block);
+                        });
+                    },
+                    enableSmoothScroll() {
+                        new SmoothScroll('a[href*="#"]');
+                    },
+                },
+                mounted() {
+                    this.getData()
+                            .then(result => this.storeSectionData(result))
+                            .then(this.applyHighlight)
+                            .then(this.enableSmoothScroll);
+                },
+            });
 </script>
 </body>
 </html>
